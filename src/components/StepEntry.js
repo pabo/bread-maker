@@ -50,7 +50,7 @@ const StepEntry = (props) => {
                     <select
                         type='select'
                         id='step'
-                        name='step'
+                        name='stepKey'
                         onChange={(e) => handleChange(e)}
                         value={stepEntry.stepKey}>
                         {steps.map((step) =>  {
