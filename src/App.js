@@ -9,7 +9,6 @@ dayjs.extend(relativeTime);
 function App() {
 
   const [steps, setSteps] = useState([]);
-  const [lastTime, setLastTime] = useState(null); //could be derived from steps...
 
   const addStep = (step) => {
     // we need to change the duration of the previous step (if there was one), and then append this step
@@ -21,13 +20,15 @@ function App() {
     }
 
     setSteps([...otherSteps, ...lastStep, step]);
-    setLastTime(dayjs())
   }
 
+  const previousStep = steps.length ? steps[steps.length-1] : {};
+
   return (
+
     <>
-      <StepEntry lastTime={lastTime} submitStepEntry={(e) => addStep(e)}/>
-      <Steps steps={steps} lastTime={lastTime}/>
+      <StepEntry previousStep={previousStep} submitStepEntry={(e) => addStep(e)}/>
+      <Steps steps={steps}/>
     </>
   );
 }

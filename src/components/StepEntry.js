@@ -1,22 +1,24 @@
 import React, {useState} from 'react';
+import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
+
 import TimeSince from './TimeSince';
 import steps from '../data/steps';
 
-export default (props) => {
+const StepEntry = (props) => {
 
-    const emptyState = {
-        step: '',
+    const initialState = {
+        stepKey: 'AUTOLYSE',
         temp: '',
         notes: '',
     }
    
-    const [stepEntry, setStepEntry] = useState(emptyState);
+    const [stepEntry, setStepEntry] = useState(initialState);
 
     const handleSubmit = (event) => {
         event.preventDefault();
         props.submitStepEntry({...stepEntry, timeStarted: dayjs()});
-        setStepEntry(emptyState);
+        setStepEntry({...initialState, stepKey: getNextStep(stepEntry.stepKey)});
     }
 
     const handleChange = (event) => {
@@ -24,9 +26,23 @@ export default (props) => {
         setStepEntry({...stepEntry, [name]: value});
     }
 
+    const getNextStep = (stepKey) => {
+        if (!stepKey) {
+            return steps[0].key;
+        }
+
+        const foundIndex = steps.findIndex(item => item.key === stepKey);
+        const nextIndex = foundIndex === steps.length - 1 ? foundIndex : foundIndex + 1;
+
+        console.log("foundIndex", foundIndex)
+        console.log("nextIndex", nextIndex)
+
+        return steps[nextIndex].key;
+    }
+
     return (
         <div className='StepEntry'>
-            <TimeSince lastTime={props.lastTime}/>
+            <TimeSince lastTime={props.previousStep.timeStarted}/>
 
             <form onSubmit={(e) => {handleSubmit(e)}}>
                 <p>
@@ -36,8 +52,13 @@ export default (props) => {
                         id='step'
                         name='step'
                         onChange={(e) => handleChange(e)}
-                        value={stepEntry.step}>
-                        {steps.map((step, index) => <option value={step} key={index}>{step}</option>)}
+                        value={stepEntry.stepKey}>
+                        {steps.map((step) =>  {
+                            return <option
+                                    value={step.key}
+                                    key={step.key}>{step.displayName}
+                                   </option>
+                        })}
                     </select>
                 </p>
 
@@ -66,5 +87,11 @@ export default (props) => {
             <br />
         </div>
     );
-
 }
+
+StepEntry.propTypes = {
+    previousStep: PropTypes.object.isRequired,
+    submitStepEntry: PropTypes.func.isRequired,
+}
+
+export default StepEntry;
