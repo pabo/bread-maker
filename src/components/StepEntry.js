@@ -2,13 +2,24 @@ import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 
-import TimeSince from './TimeSince';
 import steps from '../data/steps';
+
+// TODO: this could be smarter. step after highest completed step? groupings?
+const getNextStepKey = (stepKey) => {
+    if (!stepKey) {
+        return steps[0].key;
+    }
+
+    const foundIndex = steps.findIndex(item => item.key === stepKey);
+    const nextIndex = foundIndex === steps.length - 1 ? foundIndex : foundIndex + 1;
+
+    return steps[nextIndex].key;
+}
 
 const StepEntry = (props) => {
 
     const initialState = {
-        stepKey: 'AUTOLYSE',
+        stepKey: getNextStepKey(props.previousStep.stepKey),
         temp: '',
         notes: '',
     }
@@ -18,7 +29,7 @@ const StepEntry = (props) => {
     const handleSubmit = (event) => {
         event.preventDefault();
         props.submitStepEntry({...stepEntry, timeStarted: dayjs()});
-        setStepEntry({...initialState, stepKey: getNextStep(stepEntry.stepKey)});
+        setStepEntry({...initialState, stepKey: getNextStepKey(stepEntry.stepKey)});
     }
 
     const handleChange = (event) => {
@@ -26,24 +37,10 @@ const StepEntry = (props) => {
         setStepEntry({...stepEntry, [name]: value});
     }
 
-    const getNextStep = (stepKey) => {
-        if (!stepKey) {
-            return steps[0].key;
-        }
 
-        const foundIndex = steps.findIndex(item => item.key === stepKey);
-        const nextIndex = foundIndex === steps.length - 1 ? foundIndex : foundIndex + 1;
-
-        console.log("foundIndex", foundIndex)
-        console.log("nextIndex", nextIndex)
-
-        return steps[nextIndex].key;
-    }
 
     return (
         <div className='StepEntry'>
-            <TimeSince lastTime={props.previousStep.timeStarted}/>
-
             <form onSubmit={(e) => {handleSubmit(e)}}>
                 <p>
                     <label htmlFor='step'>Step</label>
