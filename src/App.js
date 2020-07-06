@@ -14,7 +14,7 @@ dayjs.extend(relativeTime);
 
 function App() {
 
-  const [steps, setSteps] = useStickyState([]);
+  const [steps, setSteps] = useStickyState([], 'steps');
 
   const addStep = (step) => {
     // we need to change the duration of the previous step (if there was one), and then append this step
