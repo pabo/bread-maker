@@ -1,5 +1,5 @@
 import React from 'react';
-import useStickyState from './hooks/useStickyState';
+import {useStickyState} from './hooks';
 
 import dayjs from 'dayjs';
 
@@ -29,12 +29,16 @@ function App() {
     setSteps([...otherSteps, ...lastStep, step]);
   }
 
+  const clearAll = () => {
+    setSteps([]);
+  }
+
   const previousStep = steps.length ? steps[steps.length-1] : {};
 
   return (
 
     <>
-      <StepEntry previousStep={previousStep} submitStepEntry={(e) => addStep(e)}/>
+      <StepEntry previousStep={previousStep} submitStepEntry={(e) => addStep(e)} clearAllSteps={() => clearAll()}/>
       <div className='container'>
         <Steps steps={steps}/>
         <Timeline steps={steps}/>

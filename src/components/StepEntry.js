@@ -81,7 +81,7 @@ const StepEntry = (props) => {
                 </p>
                 <input type='submit' />
             </form>
-            <br />
+            <button onClick={() => props.clearAllSteps()}>Clear all</button>
         </div>
     );
 }
@@ -89,6 +89,7 @@ const StepEntry = (props) => {
 StepEntry.propTypes = {
     previousStep: PropTypes.object.isRequired,
     submitStepEntry: PropTypes.func.isRequired,
+    clearAllSteps: PropTypes.func.isRequired,
 }
 
 export default StepEntry;
