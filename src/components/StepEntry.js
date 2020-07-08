@@ -2,25 +2,30 @@ import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 
-import steps from '../data/steps';
+import stepKeys from '../data/steps';
 
 const timerValues = [5,10,15,20,25,30,45,60,'no timer'];
 
 // TODO: this could be smarter. step after highest completed step? groupings?
 const getNextStepKey = (stepKey) => {
     if (!stepKey) {
-        return steps[0].key;
+        return stepKeys[0].key;
     }
 
-    const foundIndex = steps.findIndex(item => item.key === stepKey);
-    const nextIndex = foundIndex === steps.length - 1 ? foundIndex : foundIndex + 1;
+    const foundIndex = stepKeys.findIndex(item => item.key === stepKey);
+    const nextIndex = foundIndex === stepKeys.length - 1 ? foundIndex : foundIndex + 1;
 
-    return steps[nextIndex].key;
+    return stepKeys[nextIndex].key;
 }
 
-const StepEntry = (props) => {
+const StepEntry = React.memo((props) => {
+    console.log("StepEntry")
+
+    const {steps = [], addStep, clearSteps} = props;
+    const previousStep = steps.length ? steps[steps.length-1] : {};
+
     const initialState = {
-        stepKey: getNextStepKey(props.previousStep.stepKey),
+        stepKey: getNextStepKey(previousStep.stepKey),
         temp: '',
         notes: '',
         timer: '',
@@ -30,7 +35,7 @@ const StepEntry = (props) => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        props.submitStepEntry({...stepEntry, timeStarted: dayjs()});
+        addStep({...stepEntry, timeStarted: dayjs()});
 
         handleReset();
     }
@@ -59,7 +64,7 @@ const StepEntry = (props) => {
                         name='stepKey'
                         onChange={(e) => handleChange(e)}
                         value={stepEntry.stepKey}>
-                        {steps.map((step) =>  {
+                        {stepKeys.map((step) =>  {
                             return <option
                                     value={step.key}
                                     key={step.key}>{step.displayName}
@@ -94,15 +99,22 @@ const StepEntry = (props) => {
                     })}
                 </p>
             </form>
-            <button onClick={() => props.clearAllSteps()}>Clear all</button>
+            <button onClick={() => clearSteps()}>Clear all</button>
         </div>
     );
-}
+});
+// }, (oldProps, newProps) => {
+//     console.log("old:", oldProps);
+//     console.log("new:", newProps);
+//     console.log("is addStep the same?", oldProps.addStep === newProps.addStep)
+//     console.log("is clearSteps the same?", oldProps.clearSteps === newProps.clearSteps)
+//     console.log("is previousStep the same?", oldProps.previousStep === newProps.previousStep)
+// });
 
 StepEntry.propTypes = {
-    previousStep: PropTypes.object.isRequired,
-    submitStepEntry: PropTypes.func.isRequired,
-    clearAllSteps: PropTypes.func.isRequired,
+    steps: PropTypes.array.isRequired,
+    addStep: PropTypes.func.isRequired,
+    clearSteps: PropTypes.func.isRequired,
 }
 
 export default StepEntry;

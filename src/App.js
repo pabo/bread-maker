@@ -1,5 +1,11 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {useStickyState, useIntervalRender} from './hooks';
+
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route
+} from 'react-router-dom';
 
 import dayjs from 'dayjs';
 
@@ -13,49 +19,66 @@ import './App.css';
 var relativeTime = require('dayjs/plugin/relativeTime')
 dayjs.extend(relativeTime);
 
+const initialState = {
+  steps: [],
+  timerAcknowledged: true,
+  timerExpiration: null
+};
+
 function App() {
 
-  const [steps, setSteps] = useStickyState('steps', []);
-  const [timerExpiration, setTimerExpiration] = useStickyState('timerExpiration', null);
-  const [timerAcknowledged, setTimerAcknowledged] = useStickyState('acknowledged', false);
+  // const [state, setState] = useState(initialState);
+  const [state, setState] = useStickyState('state', initialState);
+  const {steps, timerExpiration, timerAcknowledged} = state;
+
+  // might need to set initial state as these defaults
+  // const [timerExpiration, setTimerExpiration] = useStickyState('timerExpiration', null);
+  // const [timerAcknowledged, setTimerAcknowledged] = useStickyState('acknowledged', false);
 
   useIntervalRender(1000); // TODO: perf impact of re-rendering entire view every second?
 
-  const addStep = (step) => {
+  const addStep = useCallback((step) => {
     // we need to change the duration of the previous step (if there was one), and then append this step
-    const lastStep = steps.slice(-1) || [];
-    const otherSteps = steps.slice(0, steps.length-1) || []
+    const lastStep = state.steps.slice(-1) || [];
+    const otherSteps = state.steps.slice(0, state.steps.length-1) || []
 
     if (lastStep.length) {
       lastStep[0].timeEnded = dayjs();
     }
 
-    setSteps([...otherSteps, ...lastStep, step]);
-    setTimerAcknowledged(false);
-    setTimerExpiration(
-      step.timer === 'no timer' ? //TODO: magic word no good
-      null :
-      dayjs().add(parseInt(step.timer,10),'second')
-    );
-  }
+    setState({...state,
+      steps:[...otherSteps, ...lastStep, step],
+      timerAcknowledged: false,
+      //TODO: magic word no good
+      timerExpiration: step.timer === 'no timer' ? null : dayjs().add(parseInt(step.timer,10),'second')
+    });
+  }, [state, setState]);
 
-  const clearAll = () => {
-    setSteps([]);
-    setTimerExpiration(null);
-    setTimerAcknowledged(true);
-  }
+  const clearSteps = useCallback(() => {
+    setState({...state, initialState });
+  }, [state, setState]);
 
-  const previousStep = steps.length ? steps[steps.length-1] : {};
+  const acknowledgeTimer = useCallback(() => {
+    setState({...state,
+      timerAcknowledged: true,
+    });
+  }, [state, setState]);
 
   return (
-    <>
-      <StepEntry previousStep={previousStep} submitStepEntry={(e) => addStep(e)} clearAllSteps={() => clearAll()}/>
-      <Timer timerExpiration={timerExpiration} timerAcknowledged={timerAcknowledged} setTimerAcknowledged={(x) => setTimerAcknowledged(x)}/>
-      <div className='container'>
-        <Steps steps={steps}/>
-        <Timeline steps={steps}/>
-      </div>
-    </>
+    <Router>
+      <Switch>
+        <Route path="/steps">
+          <StepEntry steps={steps} addStep={addStep} clearSteps={clearSteps}/>
+          <Timer timerExpiration={timerExpiration} timerAcknowledged={timerAcknowledged} acknowledgeTimer={acknowledgeTimer}/>
+          <Steps steps={steps}/>
+        </Route>
+        <Route path="/">
+          <StepEntry steps={steps} addStep={addStep} clearSteps={clearSteps}/>
+          <Timer timerExpiration={timerExpiration} timerAcknowledged={timerAcknowledged} acknowledgeTimer={acknowledgeTimer}/>
+          <Timeline steps={steps}/>
+        </Route>
+      </Switch>
+    </Router>
   );
 }
 

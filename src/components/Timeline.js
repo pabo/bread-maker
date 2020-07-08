@@ -6,6 +6,7 @@ import { parseMillisecondsIntoReadableTime } from '../util/time';
 const msPerPixel = 5000; // 1000 means 1 pixel per second
 
 export default (props) => {
+    console.log("Timeline")
     const { steps } = props;
     const totalTime = steps[0] ? dayjs().diff(steps[0].timeStarted) : '';
 
@@ -31,5 +32,4 @@ export default (props) => {
             </div>
         </div>
     );
-
-}
+};

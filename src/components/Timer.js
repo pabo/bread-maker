@@ -5,7 +5,7 @@ var relativeTime = require('dayjs/plugin/relativeTime')
 dayjs.extend(relativeTime);
 
 export default (props) => {
-    const {timerExpiration, timerAcknowledged, setTimerAcknowledged} = props;
+    const {timerExpiration, timerAcknowledged, acknowledgeTimer} = props;
     const durationInMs = dayjs(timerExpiration).diff(dayjs());
     const expired = durationInMs <= 0;
 
@@ -16,9 +16,8 @@ export default (props) => {
             }
 
             return (
-                <div className='Timer expired'>
-                    Timer expired {parseMillisecondsIntoReadableTime(-durationInMs) } ago!
-                    <p><button onClick={() => {setTimerAcknowledged(true)}}>Acknowledge</button></p>
+                <div className='Timer expired' onClick={() => {acknowledgeTimer()}} >
+                    Timer expired {parseMillisecondsIntoReadableTime(-durationInMs) } ago! (click to dismiss)
                 </div>
             );
         }
