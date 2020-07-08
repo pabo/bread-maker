@@ -35,3 +35,13 @@ p {
   justify-content: center;
   align-items: flex-start;
 }
+
+.Timer.expired {
+  background-color: red;
+}
+
+.Timer {
+  text-align: center;
+  padding: 10px;
+  height: 4em;
+}

@@ -1,7 +1,6 @@
 import React from 'react';
 import dayjs from 'dayjs';
 
-import { useIntervalRender } from '../hooks';
 import { parseMillisecondsIntoReadableTime } from '../util/time';
 
 const msPerPixel = 5000; // 1000 means 1 pixel per second
@@ -10,8 +9,6 @@ export default (props) => {
     const { steps } = props;
     const totalTime = steps[0] ? dayjs().diff(steps[0].timeStarted) : '';
 
-    useIntervalRender(1000);
-    
     return (
         <div className='Timeline'>
             <p>Timeline</p>

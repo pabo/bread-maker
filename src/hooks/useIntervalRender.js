@@ -5,7 +5,7 @@ export default function useIntervalRender(interval) {
 
   useEffect(() => {
       const intervalHandle = setInterval(() => {
-          console.log("interval called")
+          console.log("ticking")
           setTick(x => x + 1);
       }, 1000);
      

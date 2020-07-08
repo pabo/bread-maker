@@ -4,6 +4,8 @@ import dayjs from 'dayjs';
 
 import steps from '../data/steps';
 
+const timerValues = [5,10,15,20,25,30,45,60,'no timer'];
+
 // TODO: this could be smarter. step after highest completed step? groupings?
 const getNextStepKey = (stepKey) => {
     if (!stepKey) {
@@ -17,11 +19,11 @@ const getNextStepKey = (stepKey) => {
 }
 
 const StepEntry = (props) => {
-
     const initialState = {
         stepKey: getNextStepKey(props.previousStep.stepKey),
         temp: '',
         notes: '',
+        timer: '',
     }
    
     const [stepEntry, setStepEntry] = useState(initialState);
@@ -29,7 +31,8 @@ const StepEntry = (props) => {
     const handleSubmit = (event) => {
         event.preventDefault();
         props.submitStepEntry({...stepEntry, timeStarted: dayjs()});
-        setStepEntry({...initialState, stepKey: getNextStepKey(stepEntry.stepKey)});
+
+        handleReset();
     }
 
     const handleChange = (event) => {
@@ -37,7 +40,13 @@ const StepEntry = (props) => {
         setStepEntry({...stepEntry, [name]: value});
     }
 
+    const handleReset = () => {
+        setStepEntry({...initialState, stepKey: getNextStepKey(stepEntry.stepKey)});
+    }
 
+    const handleTimerClick = (timer) => {
+        setStepEntry({...stepEntry, timer});
+    }
 
     return (
         <div className='StepEntry'>
@@ -79,7 +88,11 @@ const StepEntry = (props) => {
                         onChange={(e) => handleChange(e)}
                         value={stepEntry.notes}/>
                 </p>
-                <input type='submit' />
+                <p>
+                    {timerValues.map((value, index) => {
+                        return <button key={index} onClick={() => handleTimerClick(value)}>{value}</button>
+                    })}
+                </p>
             </form>
             <button onClick={() => props.clearAllSteps()}>Clear all</button>
         </div>
