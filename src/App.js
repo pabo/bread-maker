@@ -26,16 +26,14 @@ const initialState = {
 };
 
 function App() {
-
-  // const [state, setState] = useState(initialState);
   const [state, setState] = useStickyState('state', initialState);
   const {steps, timerExpiration, timerAcknowledged} = state;
 
-  // might need to set initial state as these defaults
-  // const [timerExpiration, setTimerExpiration] = useStickyState('timerExpiration', null);
-  // const [timerAcknowledged, setTimerAcknowledged] = useStickyState('acknowledged', false);
-
-  useIntervalRender(1000); // TODO: perf impact of re-rendering entire view every second?
+  // TODO: entire app ticks every second and it's up to a component to React.memo if
+  // it wants to avoid this ticking render (ex: StepEntry is unticked). Is this the right approach?
+  // pro: everything ticks together if at all
+  // con: default ticking might be overkill
+  useIntervalRender(1000);
 
   const addStep = useCallback((step) => {
     // we need to change the duration of the previous step (if there was one), and then append this step
@@ -73,9 +71,11 @@ function App() {
           <Steps steps={steps}/>
         </Route>
         <Route path="/">
-          <StepEntry steps={steps} addStep={addStep} clearSteps={clearSteps}/>
-          <Timer timerExpiration={timerExpiration} timerAcknowledged={timerAcknowledged} acknowledgeTimer={acknowledgeTimer}/>
-          <Timeline steps={steps}/>
+          <div class='container'>
+            <StepEntry steps={steps} addStep={addStep} clearSteps={clearSteps}/>
+            <Timer timerExpiration={timerExpiration} timerAcknowledged={timerAcknowledged} acknowledgeTimer={acknowledgeTimer}/>
+            <Timeline steps={steps}/>
+          </div>
         </Route>
       </Switch>
     </Router>
